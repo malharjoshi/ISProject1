@@ -36,7 +36,7 @@ public class Nodes implements Comparable<Nodes>
         int n = SolveEightPuzzle.goalState.length;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if(!this.nodeset[i][j].isEmpty())
+                if(!this.nodeset[i][j].trim().isEmpty())
                 {
                     index_of_current_tile = get_index_from_goalState(n,Integer.parseInt(this.nodeset[i][j]));
                     if(isManhattanHeuristic)
@@ -55,15 +55,15 @@ public class Nodes implements Comparable<Nodes>
             }
         }
 
-        return 0;
+        return cost;
     }
     //method to find corresponding indices of a given element in the goal state and return them via array
-    private int [] get_index_from_goalState(int n,int element)
+    private int [] get_index_from_goalState(int n,Integer element)
     {
         int []index_of_goal_tile = new int[2];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if(!SolveEightPuzzle.goalState[i][j].isEmpty())
+                if(!SolveEightPuzzle.goalState[i][j].trim().isEmpty())
                 {
                     if(SolveEightPuzzle.goalState[i][j].trim().equals(String.valueOf(element)))
                     {

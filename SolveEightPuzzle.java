@@ -2,6 +2,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -18,7 +19,7 @@ public class SolveEightPuzzle
     public static String [][]goalState;
     public static Scanner sc = new Scanner (System.in);
     public static HashMap<Nodes, Nodes> backtrackMap;
-    
+    public static List<Nodes> backtrackList;
 
     SolveEightPuzzle(Nodes initial_node)
     { 
@@ -55,10 +56,10 @@ public class SolveEightPuzzle
 					}
                 }
                 if(alreadyExpanded == 1)
-                continue;
+                    continue;
 
                 //backtrack
-                backtrackMap.put(ls, currentnode);
+                backtrackMap.put(ls,currentnode);
                 //Check is puzzle is solvable or not
                 if((currentnode.fn-currentnode.gn)>(ls.fn-ls.gn))
                     isPuzzleSolvable=true;
@@ -76,34 +77,91 @@ public class SolveEightPuzzle
     
     public static void main( String args[]) {
 
-        
-        int n;
-        
-        System.out.print("Enter size of input matrix for start and goal node: ");
-        n = sc.nextInt();
-        System.out.println("Note : For A* implementation, you may use \"*\", \"#\" or \"_\"  to represent blank tiles on a board");
-        String [][]initialState = new String[n][n];
-        System.out.println("Enter start state for puzzle : "); // get the start State
-        initialState = get_valid_input(initialState,n);
-        System.out.println("Enter Goal state for puzzle : "); // get the goal State
-        goalState = get_valid_input(goalState,n);
-        is_puzzle_solved(initialState,goalState);
+
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\n Please Enter the space  for the blanksquare. Add input nextline");
+
+        String[][] start = new String[3][3];
+        String[][] goal = new String[3][3];
+			 
+			 
+			 
+			 //To get start node input
+        System.out.println(
+                "\n**********************************************************************");
+        System.out.println("\n Please Enter the Start node");
+        for (int i=0;i<start.length;i++)
+        {
+            for(int  j=0;j<start.length;j++)
+            {
+                start[i][j] = sc.nextLine();
+                if(start[i][j].length()!=1 || (start[i][j].charAt(0)<'0' && start[i][j].charAt(0)!=' ') || start[i][j].charAt(0)>'8')
+                {
+                    System.out.println("Error: Input should be any number between 1 to 8 or a single space\nProgram Terminated");
+                    return;
+                }
+            }
+        }
+			 
+			 
+        //Get Goal node input
+        System.out.println("\n Please Enter the  Goal node");
+        for (int i=0;i<goal.length;i++)
+        {
+            for(int j=0;j<goal.length;j++)
+            {
+                goal[i][j] = sc.nextLine();
+                if(goal[i][j].length()!=1 || (goal[i][j].charAt(0)<'0' && goal[i][j].charAt(0)!=' ') || goal[i][j].charAt(0)>'8')
+                {
+                    System.out.println("Error: Input should be any number between 1 to 8 or a single space\nProgram Terminated");
+                    return;
+                }
+            }
+        }
+			 			 
+		 
+        for(int m=0;m<2;m++)
+        {
+            isManhattan=(m==0)?true:false;
+            is_puzzle_solved(start, goal);
+        }
+
     }
 
     
-    public static void is_puzzle_solved (String[][] initialState, String[][] goalState)
+    public static void is_puzzle_solved (String[][] initialState, String[][] goalState1)
     {
+        backtrackMap=new HashMap<Nodes, Nodes>();
+        backtrackList=new ArrayList<Nodes>();
         frontierPathList = new ArrayList<Nodes>();
         obj_priorityQueue = new PriorityQueue<Nodes>();
         expandedNodes = new ArrayList<Nodes>();
-        System.out.println("-- The Initial State --");
+        System.out.println("\n-- The Initial State -- \n");
         printStates(initialState);
         System.out.println("-- The Goal State -- \n");
-        printStates(goalState);
-        if (isManhattan) System.out.println("Manhattan distance is used to calculate the heuristic and solution to goal path");
-        else System.out.println("Miss placed tiles have been used to calculate the heuristic and solution to goal path");
+        printStates(goalState1);
+        if (isManhattan) System.out.println("\nManhattan distance is used to calculate the heuristic and solution to goal path");
+        else System.out.println("\nMiss placed tiles have been used to calculate the heuristic and solution to goal path");
+        goalState = goalState1;
         Nodes node = new Nodes(initialState, 0);
         startState = node;
+
+        new SolveEightPuzzle(startState);
+
+        //track parents
+        getPathToParent(expandedNodes.get(expandedNodes.size()-1));
+        for (int i2 = backtrackList.size() - 1; i2 >= 0; i2--)
+				printNodes(backtrackList.get(i2));
+
+        if(isPuzzleSolvable)
+        System.out.println("Total Cost to reach goal is : "
+                + (expandedNodes.size() > 0 ? expandedNodes.get(expandedNodes.size() - 1).fn : 0));
+        else
+            System.out.println("The puzzle is not solvable. Incomplete");
+			
+        System.out.println("Total Nodes expandednodes :" + expandedNodes.size());
+        System.out.println("Total Nodes generated:" + (expandedNodes.size() + obj_priorityQueue.size()));
     }
 
     public static void printStates(String [][] Node)
@@ -115,22 +173,29 @@ public class SolveEightPuzzle
 			System.out.println();
 		}
     }
-    public static String[][] get_valid_input (String [][]node, int n)
-    {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                node[i][j] = sc.nextLine();
-                //input entered should be between 1 - 8 and shouldn't be empty and * or mentioned characters should be used to present empty tiles.
-                if( node[i][j].length() != 1 || (node[i][j].charAt(0) <'0' && node[i][j].charAt(0) != '*') || node[i][j].charAt(0) > '8' )
-                {
-                    System.out.println(" --  Please enter suitable input for board game between 1 to 8 -- ");
-                    System.out.println("Note : For A* implementation, you may use \"*\", \"#\" or \"_\"  to represent blank tiles on a board");
-                    System.out.println("Program Terminating.. Try again!");
-                    break;
-                }
 
-            }
-        }
-        return node;
-    }
+
+    //track the parent
+	private static void getPathToParent(Nodes childnode) {
+
+		backtrackList.add(childnode);
+		if (childnode != startState)
+            getPathToParent(backtrackMap.get(childnode));
+
+	}
+
+    public static void printNodes(Nodes node) {
+		System.out.println("*******************************************************************");
+		for (int l = 0; l < 3; l++) {
+			for (int m = 0; m < 3; m++) {
+				System.out.print(node.nodeset[l][m] + "\t");
+			}
+			System.out.println();
+		}
+		System.out.println("f(n) :" + node.fn);
+		System.out.println("h(n) :" + (node.fn - node.gn));
+		System.out.println("g(n) :" + (node.gn));
+		System.out.println('\n');
+
+	}
 }
