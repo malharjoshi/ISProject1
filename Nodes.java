@@ -49,7 +49,7 @@ public class Nodes implements Comparable<Nodes>
                     {
                         //if tile postion in goal state doesn't matches with current state just increment the tile cost by 1
                         if(index_of_current_tile[0]!=i || index_of_current_tile[1]!=j)
-                        cost +=1;
+                            cost +=1;
                     }
                 }
             }
